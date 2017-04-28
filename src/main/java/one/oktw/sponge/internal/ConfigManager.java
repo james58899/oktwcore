@@ -4,7 +4,7 @@ import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
-import one.oktw.sponge.Core;
+import org.slf4j.Logger;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.api.text.title.Title;
@@ -16,19 +16,40 @@ import java.nio.file.Path;
 import static one.oktw.sponge.Core.getCore;
 
 public class ConfigManager {
-    private Core core = getCore();
     private ConfigurationLoader<CommentedConfigurationNode> loader;
     private ConfigurationNode node;
 
-    public ConfigManager(Path privatePluginDir) throws IOException {
+    public ConfigManager(Path privatePluginDir) {
         Path configPath = privatePluginDir.resolve("config.conf");
         loader = HoconConfigurationLoader.builder().setPath(configPath).build();
+        Logger logger = getCore().getLogger();
         if (Files.exists(configPath)) {
-            node = loader.load();
+            try {
+                node = loader.load();
+            } catch (IOException e) {
+                logger.error("Load config failed!");
+                logger.error(e.getMessage());
+            }
         } else {
-            Files.createDirectories(privatePluginDir);
-            core.getPlugin().getAsset("config.conf").get().copyToFile(configPath);
-            node = loader.load();
+            logger.info("Creating new config file...");
+            try {
+                Files.createDirectories(privatePluginDir);
+            } catch (IOException e) {
+                logger.error("Can't create plugin config directory!");
+                logger.error(e.getMessage());
+            }
+            try {
+                getCore().getPlugin().getAsset("config.conf").get().copyToFile(configPath);
+            } catch (IOException e) {
+                logger.error("Can't create config.conf!");
+                logger.error(e.getMessage());
+            }
+            try {
+                node = loader.load();
+            } catch (IOException e) {
+                logger.error("Load config failed!");
+                logger.error(e.getMessage());
+            }
         }
     }
 
