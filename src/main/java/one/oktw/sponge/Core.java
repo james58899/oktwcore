@@ -47,11 +47,11 @@ public class Core {
     public void onInit(GameInitializationEvent event) {
         logger.info("Loading...");
         configManager = new ConfigManager(privatePluginDir);
-        databaseManager = new DatabaseManager();
+        databaseManager = new DatabaseManager(privatePluginDir);
         commandManager = new CommandManager();
         eventManager = new EventManager();
         worldManager = new WorldManager();
-        logger.info("Plugin Loaded!");
+        logger.info("Plugin loaded!");
     }
 
     @Listener

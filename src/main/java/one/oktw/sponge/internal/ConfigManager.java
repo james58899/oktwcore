@@ -20,35 +20,31 @@ public class ConfigManager {
     private ConfigurationNode node;
 
     public ConfigManager(Path privatePluginDir) {
+        Logger logger = getCore().getLogger();
         Path configPath = privatePluginDir.resolve("config.conf");
         loader = HoconConfigurationLoader.builder().setPath(configPath).build();
-        Logger logger = getCore().getLogger();
         if (Files.exists(configPath)) {
             try {
                 node = loader.load();
             } catch (IOException e) {
-                logger.error("Load config failed!");
-                logger.error(e.getMessage());
+                logger.error("Load config failed!", e);
             }
         } else {
             logger.info("Creating new config file...");
             try {
                 Files.createDirectories(privatePluginDir);
             } catch (IOException e) {
-                logger.error("Can't create plugin config directory!");
-                logger.error(e.getMessage());
+                logger.error("Can't create plugin config directory!", e);
             }
             try {
                 getCore().getPlugin().getAsset("config.conf").get().copyToFile(configPath);
             } catch (IOException e) {
-                logger.error("Can't create config.conf!");
-                logger.error(e.getMessage());
+                logger.error("Can't create config.conf!", e);
             }
             try {
                 node = loader.load();
             } catch (IOException e) {
-                logger.error("Load config failed!");
-                logger.error(e.getMessage());
+                logger.error("Load config failed!", e);
             }
         }
     }

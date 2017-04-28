@@ -6,9 +6,10 @@ import org.spongepowered.api.Sponge;
 import static one.oktw.sponge.Core.getCore;
 
 public class EventManager {
-    private org.spongepowered.api.event.EventManager eventManager = Sponge.getEventManager();
 
     public EventManager() {
+        org.spongepowered.api.event.EventManager eventManager = Sponge.getEventManager();
+
         eventManager.registerListeners(getCore(), new PlayerJoin());
     }
 }
