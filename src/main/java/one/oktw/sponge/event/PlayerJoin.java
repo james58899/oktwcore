@@ -9,7 +9,7 @@ import org.spongepowered.api.event.network.ClientConnectionEvent;
 
 import static one.oktw.sponge.Core.getCore;
 
-public class OnPlayerJoin {
+public class PlayerJoin {
     private Core core = getCore();
     private ConfigManager config = core.getConfigManager();
     private WorldManager worldManager = getCore().getWorldManager();
