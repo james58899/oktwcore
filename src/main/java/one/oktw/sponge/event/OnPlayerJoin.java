@@ -1,25 +1,28 @@
 package one.oktw.sponge.event;
 
 import one.oktw.sponge.Core;
-import one.oktw.sponge.util.WorldManager;
+import one.oktw.sponge.internal.ConfigManager;
+import one.oktw.sponge.internal.WorldManager;
 import org.spongepowered.api.entity.living.player.Player;
-import org.spongepowered.api.event.EventListener;
+import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
 
 import static one.oktw.sponge.Core.getCore;
 
-public class OnPlayerJoin implements EventListener<ClientConnectionEvent.Join> {
+public class OnPlayerJoin {
     private Core core = getCore();
+    private ConfigManager config = core.getConfigManager();
     private WorldManager worldManager = getCore().getWorldManager();
 
-    @Override
-    @NonnullByDefault
-    public void handle(ClientConnectionEvent.Join event) throws Exception {
+    @Listener
+    public void onPlayerJoin(ClientConnectionEvent.Join event) throws Exception {
         Player player = event.getTargetEntity();
-        if (!worldManager.checkExist(player.getUniqueId().toString())) {
-            worldManager.createWorld(player.getUniqueId().toString());
-        }
+        player.sendTitle(config.getTitle());
+        player.sendMessage(config.getJoinMessage());
+
+//        if (!worldManager.checkExist(player.getUniqueId().toString())) {
+//            worldManager.createWorld(player.getUniqueId().toString());
+//        }
 //
 //        Inventory chest = Inventory.builder()
 //                .of(InventoryArchetypes.CHEST)

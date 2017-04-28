@@ -1,24 +1,20 @@
 package one.oktw.sponge;
 
 import com.google.inject.Inject;
-import one.oktw.sponge.event.OnPlayerJoin;
-import one.oktw.sponge.util.WorldManager;
+import one.oktw.sponge.internal.*;
 import org.slf4j.Logger;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.config.DefaultConfig;
-import org.spongepowered.api.event.EventManager;
+import org.spongepowered.api.config.ConfigDir;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.game.GameReloadEvent;
 import org.spongepowered.api.event.game.state.GameConstructionEvent;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
-import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.plugin.Plugin;
+import org.spongepowered.api.plugin.PluginContainer;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
-@Plugin(id = "oktwcore", name = "OKTW_Core", version = "1.0")
+@Plugin(id = "oktwcore", name = "OKTW_Core", version = "1.0.0")
 public class Core {
     private static Core core;
 
@@ -26,9 +22,16 @@ public class Core {
     private Logger logger;
 
     @Inject
-    @DefaultConfig(sharedRoot = true)
-    private Path defaultConfig;
+    @ConfigDir(sharedRoot = false)
+    private Path privatePluginDir;
 
+    @Inject
+    private PluginContainer plugin;
+
+    private CommandManager commandManager;
+    private ConfigManager configManager;
+    private DatabaseManager databaseManager;
+    private EventManager eventManager;
     private WorldManager worldManager;
 
     public static Core getCore() {
@@ -43,26 +46,41 @@ public class Core {
     @Listener
     public void onInit(GameInitializationEvent event) throws IOException {
         logger.info("Loading...");
+        commandManager = new CommandManager();
+        configManager = new ConfigManager(privatePluginDir);
+        databaseManager = new DatabaseManager(privatePluginDir);
+        eventManager = new EventManager();
         worldManager = new WorldManager();
-        registerListeners();
-        registerCommand();
-        if (Files.notExists(defaultConfig)) {
-            Sponge.getAssetManager().getAsset("oktwcore.conf").orElseThrow(FileNotFoundException::new).copyToFile(defaultConfig);
-        }
         logger.info("Plugin Loaded!");
     }
 
-    private void registerListeners() {
-        EventManager eventManager = Sponge.getEventManager();
-        eventManager.registerListener(this, ClientConnectionEvent.Join.class, new OnPlayerJoin());
-    }
-
-    private void registerCommand() {
-        //TODO
+    @Listener
+    public void onReload(GameReloadEvent event) throws IOException {
+        configManager.reload();
     }
 
     public Logger getLogger() {
         return logger;
+    }
+
+    public PluginContainer getPlugin() {
+        return plugin;
+    }
+
+    public CommandManager getCommandManager() {
+        return commandManager;
+    }
+
+    public ConfigManager getConfigManager() {
+        return configManager;
+    }
+
+    public DatabaseManager getDatabaseManager() {
+        return databaseManager;
+    }
+
+    public EventManager getEventManager() {
+        return eventManager;
     }
 
     public WorldManager getWorldManager() {
