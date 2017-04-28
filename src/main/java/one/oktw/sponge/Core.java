@@ -44,11 +44,11 @@ public class Core {
     }
 
     @Listener
-    public void onInit(GameInitializationEvent event) throws IOException {
+    public void onInit(GameInitializationEvent event) {
         logger.info("Loading...");
-        commandManager = new CommandManager();
         configManager = new ConfigManager(privatePluginDir);
-        databaseManager = new DatabaseManager(privatePluginDir);
+        databaseManager = new DatabaseManager();
+        commandManager = new CommandManager();
         eventManager = new EventManager();
         worldManager = new WorldManager();
         logger.info("Plugin Loaded!");
