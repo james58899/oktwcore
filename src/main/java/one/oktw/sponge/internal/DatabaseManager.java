@@ -1,29 +1,27 @@
 package one.oktw.sponge.internal;
 
+import com.mongodb.async.client.MongoClient;
+import com.mongodb.async.client.MongoClients;
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import org.slf4j.Logger;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.service.sql.SqlService;
-
-import javax.sql.DataSource;
-import java.nio.file.Path;
-import java.sql.SQLException;
 
 import static one.oktw.sponge.Core.getCore;
 
 public class DatabaseManager {
-    private Logger logger = getCore().getLogger();
-    private DataSource database;
-
-    public DatabaseManager(Path privatePluginDir) {
-        logger.info("Loading Database...");
-        try {
-            database = Sponge.getServiceManager().provide(SqlService.class).get().getDataSource(getCore(), "jdbc:h2:database");
-        } catch (SQLException e) {
-            logger.error("Load database failed!", e);
+    public DatabaseManager() {
+        ConfigManager config = getCore().getConfigManager();
+        CommentedConfigurationNode configNode = config.getConfigNode();
+        CommentedConfigurationNode mongodbConfig = configNode.getNode("mongodb");
+        if (mongodbConfig.isVirtual()) {
+            mongodbConfig.getNode("connect").setValue("mongodb://localhost");
+            mongodbConfig.getNode("connect").setComment("ConnectionString for MongoDB");
+            mongodbConfig.getNode("database").setValue("oktw");
+            mongodbConfig.getNode("database").setComment("Datebase name");
+            config.save();
         }
-    }
 
-    public DataSource getDatabase() {
-        return database;
+        Logger logger = getCore().getLogger();
+        logger.info("Loading Database...");
+        MongoClient mongoClient = MongoClients.create(mongodbConfig.getNode("connect").getString());
     }
 }

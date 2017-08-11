@@ -1,9 +1,12 @@
 package one.oktw.sponge;
 
 import com.google.inject.Inject;
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
+import ninja.leaping.configurate.loader.ConfigurationLoader;
 import one.oktw.sponge.internal.*;
 import org.slf4j.Logger;
 import org.spongepowered.api.config.ConfigDir;
+import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.GameReloadEvent;
 import org.spongepowered.api.event.game.state.GameConstructionEvent;
@@ -20,6 +23,10 @@ public class Core {
 
     @Inject
     private Logger logger;
+
+    @Inject
+    @DefaultConfig(sharedRoot = false)
+    private ConfigurationLoader<CommentedConfigurationNode> configLoader;
 
     @Inject
     @ConfigDir(sharedRoot = false)
@@ -46,9 +53,9 @@ public class Core {
     @Listener
     public void onInit(GameInitializationEvent event) {
         logger.info("Loading...");
-        configManager = new ConfigManager(privatePluginDir);
-        databaseManager = new DatabaseManager(privatePluginDir);
         commandManager = new CommandManager();
+        configManager = new ConfigManager(configLoader);
+        databaseManager = new DatabaseManager();
         eventManager = new EventManager();
         worldManager = new WorldManager();
         logger.info("Plugin loaded!");
@@ -56,7 +63,7 @@ public class Core {
 
     @Listener
     public void onReload(GameReloadEvent event) throws IOException {
-        configManager.reload();
+        //TODO
     }
 
     public Logger getLogger() {
@@ -71,10 +78,6 @@ public class Core {
         return commandManager;
     }
 
-    public ConfigManager getConfigManager() {
-        return configManager;
-    }
-
     public DatabaseManager getDatabaseManager() {
         return databaseManager;
     }
@@ -85,5 +88,9 @@ public class Core {
 
     public WorldManager getWorldManager() {
         return worldManager;
+    }
+
+    public ConfigManager getConfigManager() {
+        return configManager;
     }
 }
